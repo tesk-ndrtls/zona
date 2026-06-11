@@ -919,7 +919,41 @@ let rosterData    = [];
 
 /* ══ INIT ══ */
 async function init() {
-  // Check if already logged in
+  // Spracuj token z URL (invite / recovery link)
+  const params = new URLSearchParams(window.location.hash.replace('#', '?'));
+  const accessToken  = params.get('access_token');
+  const refreshToken = params.get('refresh_token');
+  const type         = params.get('type');
+
+  if (accessToken && refreshToken) {
+    // Nastav session zo URL tokenov (prišiel cez email link)
+    const { data, error } = await sb.auth.setSession({
+      access_token:  accessToken,
+      refresh_token: refreshToken
+    });
+    // Vyčisti URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+    if (!error && data.session) {
+      await onLogin(data.session.user);
+      // Invite alebo recovery → presmeruj na profil
+      if (type === 'invite' || type === 'recovery') {
+        showSection('profile');
+        setTimeout(() => {
+          const msg = document.getElementById('profile-name-msg');
+          if (msg) {
+            msg.textContent = type === 'invite'
+              ? '👋 Vitaj! Nastav si meno a heslo pred prvým použitím.'
+              : '🔑 Nastav si nové heslo.';
+            msg.style.display = 'block';
+            msg.style.color = 'var(--rust-light)';
+          }
+        }, 100);
+      }
+      return;
+    }
+  }
+
+  // Štandardné spracovanie — skontroluj existujúcu session
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
     await onLogin(session.user);
@@ -927,10 +961,9 @@ async function init() {
     showSection('login');
   }
 
-  // Listen for auth changes
+  // Počúvaj zmeny auth stavu
   sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'PASSWORD_RECOVERY') {
-      // Hráč prišiel cez recovery link — zobraz formulár na nové heslo
       showPasswordRecoveryForm();
     } else if (event === 'SIGNED_IN' && session) {
       await onLogin(session.user);
