@@ -484,7 +484,7 @@ footer .f-small{font-size:.78rem; letter-spacing:.1em; text-transform:uppercase;
     <button class="btn-primary" id="login-btn" onclick="doLogin()">Prihlásiť sa</button>
     <div class="login-err" id="login-err"></div>
     <div class="login-hint">
-      Nemáš účet? Kontaktuj <a href="mailto:kapitan@ndrtls.com">kapitána</a>.<br>
+      Nemáš účet? Kontaktuj <a href="mailto:tesk@ndrtls.com">admina</a>.<br>
       <a href="#" onclick="showForgot(); return false;" style="margin-top:.3rem; display:inline-block;">Zabudol som heslo</a>
     </div>
   </div>
@@ -863,6 +863,13 @@ footer .f-small{font-size:.78rem; letter-spacing:.1em; text-transform:uppercase;
           Uložiť meno
         </button>
         <div id="profile-name-msg" style="display:none;margin-top:.6rem;font-family:'Oswald';font-size:.85rem;"></div>
+        <button id="btn-go-to-app" onclick="showSection('events')"
+          style="display:none;width:100%;margin-top:.6rem;background:var(--charcoal);
+          color:var(--cream-bright);border:1px solid var(--rust);border-radius:8px;
+          padding:.8rem;font-family:'Anton';font-size:1rem;letter-spacing:.06em;
+          text-transform:uppercase;cursor:pointer;">
+          Pokračovať do zóny →
+        </button>
       </div>
 
       <div style="background:var(--charcoal);border:1px solid var(--line);border-radius:12px;padding:1.4rem;">
@@ -999,9 +1006,24 @@ async function onLogin(user) {
   }
 
   await loadSeasons();
-  showSection('events');
-  loadEvents();
-  loadRoster();
+  await loadSeasons();
+
+  // First-time user (no full_name) → redirect to profile setup
+  if (!profile?.full_name) {
+    showSection('profile');
+    setTimeout(() => {
+      const msg = document.getElementById('profile-name-msg');
+      if (msg) {
+        msg.textContent = '👋 Vitaj! Nastav si meno a heslo pred prvým použitím.';
+        msg.style.display = 'block';
+        msg.style.color = 'var(--rust-light)';
+      }
+    }, 100);
+  } else {
+    showSection('events');
+    loadEvents();
+    loadRoster();
+  }
 }
 
 function onLogout() {
@@ -1974,10 +1996,19 @@ async function saveProfileName() {
   }
 
   // Update local state + header
+  const wasFirstTime = !currentProfile?.full_name;
   currentProfile = { ...currentProfile, full_name: name };
   document.getElementById('user-name').textContent = name;
   document.getElementById('user-avatar').textContent = name.slice(0,2).toUpperCase();
   showProfileMsg('profile-name-msg', '✓ Meno uložené', true);
+
+  // If first time, show "go to app" button
+  if (wasFirstTime) {
+    loadEvents();
+    loadRoster();
+    const btn = document.getElementById('btn-go-to-app');
+    if (btn) btn.style.display = 'block';
+  }
 }
 
 async function saveProfilePassword() {
