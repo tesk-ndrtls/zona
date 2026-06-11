@@ -152,8 +152,10 @@ header{
 
 /* ── LOGIN ────────────────────────────────────── */
 #sec-login{
-  display:flex; align-items:center; justify-content:center;
   min-height:calc(100vh - 68px); padding:2rem 1.2rem;
+}
+#sec-login.active{
+  display:flex; align-items:center; justify-content:center;
 }
 .login-card{
   width:100%; max-width:420px;
@@ -489,6 +491,10 @@ footer .f-small{font-size:.78rem; letter-spacing:.1em; text-transform:uppercase;
       <h2>Rozpis &amp; Prihlasovanie</h2>
       <p>Prihlás sa na zápasy, tréningy a akcie. Tvoja účasť sa ukladá okamžite.</p>
     </div>
+    <div id="events-admin-bar" class="admin-bar" style="display:none">
+      <span class="admin-label">⚙ Admin</span>
+      <button class="btn-admin edit" onclick="openNewEventModal(); loadAdminEvents();">+ Pridať udalosť</button>
+    </div>
     <div id="events-list">
       <div class="empty-state">
         <div class="es-icon"><span class="spinner"></span></div>
@@ -802,6 +808,8 @@ async function onLogin(user) {
   // Show admin nav if needed
   if (isAdmin) {
     document.getElementById('admin-nav').style.display = 'block';
+    document.getElementById('events-admin-bar').style.display = 'flex';
+    document.getElementById('roster-admin-bar').style.display = 'flex';
   }
 
   showSection('events');
@@ -815,6 +823,8 @@ function onLogout() {
   document.getElementById('user-badge').style.display = 'none';
   document.getElementById('menu-btn').style.display = 'none';
   document.getElementById('admin-nav').style.display = 'none';
+  document.getElementById('events-admin-bar').style.display = 'none';
+  document.getElementById('roster-admin-bar').style.display = 'none';
   showSection('login');
 }
 
