@@ -768,16 +768,29 @@ async function doLogin() {
   // onAuthStateChange handles the rest
 }
 
+let _loginHandled = false;
 async function onLogin(user) {
+  if (_loginHandled) return;      // prevent double-trigger (getSession + onAuthStateChange)
+  _loginHandled = true;
   currentUser = user;
 
-  // Fetch profile
-  const { data: profile } = await sb.from('profiles')
-    .select('*').eq('id', user.id).single();
+  // Fetch profile — wrapped so a slow/failed RLS query never blocks login
+  let profile = null;
+  try {
+    const res = await sb.from('profiles')
+      .select('*').eq('id', user.id).maybeSingle();
+    profile = res.data;
+  } catch (e) {
+    console.warn('Profile fetch failed, continuing as player:', e);
+  }
   currentProfile = profile;
 
   const isAdmin = profile?.role === 'admin';
   const name = profile?.full_name || user.email.split('@')[0];
+
+  // Reset login button (in case it's stuck on "Prihlasujem…")
+  const lb = document.getElementById('login-btn');
+  if (lb) { lb.disabled = false; lb.textContent = 'Prihlásiť sa'; }
 
   // Update header
   document.getElementById('user-badge').style.display = 'flex';
@@ -797,6 +810,7 @@ async function onLogin(user) {
 }
 
 function onLogout() {
+  _loginHandled = false;
   currentUser = null; currentProfile = null;
   document.getElementById('user-badge').style.display = 'none';
   document.getElementById('menu-btn').style.display = 'none';
