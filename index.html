@@ -849,6 +849,26 @@ footer .f-small{font-size:.78rem; letter-spacing:.1em; text-transform:uppercase;
 
       <div style="background:var(--charcoal);border:1px solid var(--line);border-radius:12px;padding:1.4rem;margin-bottom:1rem;">
         <h4 style="font-family:'Oswald';font-weight:700;font-size:.85rem;letter-spacing:.15em;
+          text-transform:uppercase;color:var(--rust-light);margin-bottom:1rem;">Nastavenie hesla</h4>
+        <div class="form-group">
+          <label>Nové heslo</label>
+          <input type="password" id="profile-pass-new" placeholder="min. 6 znakov" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label>Potvrď nové heslo</label>
+          <input type="password" id="profile-pass-confirm" placeholder="zopakuj heslo" autocomplete="new-password">
+        </div>
+        <button class="btn-primary" onclick="saveProfilePassword()" style="margin-top:.4rem;">
+          Nastaviť heslo
+        </button>
+        <div id="profile-pass-msg" style="display:none;margin-top:.6rem;font-family:'Oswald';font-size:.85rem;"></div>
+        <p style="margin-top:.8rem;color:var(--bone);font-size:.85rem;opacity:.7;">
+          Po nastavení hesla sa budeš môcť prihlásiť kedykoľvek.
+        </p>
+      </div>
+
+      <div style="background:var(--charcoal);border:1px solid var(--line);border-radius:12px;padding:1.4rem;">
+        <h4 style="font-family:'Oswald';font-weight:700;font-size:.85rem;letter-spacing:.15em;
           text-transform:uppercase;color:var(--rust-light);margin-bottom:1rem;">Zobrazované meno</h4>
         <div class="form-group">
           <label>Meno a priezvisko</label>
@@ -870,26 +890,6 @@ footer .f-small{font-size:.78rem; letter-spacing:.1em; text-transform:uppercase;
           text-transform:uppercase;cursor:pointer;">
           Pokračovať do zóny →
         </button>
-      </div>
-
-      <div style="background:var(--charcoal);border:1px solid var(--line);border-radius:12px;padding:1.4rem;">
-        <h4 style="font-family:'Oswald';font-weight:700;font-size:.85rem;letter-spacing:.15em;
-          text-transform:uppercase;color:var(--rust-light);margin-bottom:1rem;">Zmena hesla</h4>
-        <div class="form-group">
-          <label>Nové heslo</label>
-          <input type="password" id="profile-pass-new" placeholder="min. 6 znakov" autocomplete="new-password">
-        </div>
-        <div class="form-group">
-          <label>Potvrď nové heslo</label>
-          <input type="password" id="profile-pass-confirm" placeholder="zopakuj heslo" autocomplete="new-password">
-        </div>
-        <button class="btn-primary" onclick="saveProfilePassword()" style="margin-top:.4rem;">
-          Zmeniť heslo
-        </button>
-        <div id="profile-pass-msg" style="display:none;margin-top:.6rem;font-family:'Oswald';font-size:.85rem;"></div>
-        <p style="margin-top:.8rem;color:var(--bone);font-size:.85rem;opacity:.7;">
-          Po zmene hesla budeš automaticky prihlásený s novým heslom.
-        </p>
       </div>
     </div>
   </div>
