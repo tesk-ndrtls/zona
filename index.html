@@ -467,6 +467,24 @@ footer .f-small{font-size:.78rem; letter-spacing:.1em; text-transform:uppercase;
 }
 .goalkeeper-slot .player-slot.filled { border-color: #4a90d9; }
 
+
+/* ── MEDIA ──────────────────────────────────── */
+.media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;margin-bottom:1.5rem;}
+.media-item{background:var(--charcoal);border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:.2s;}
+.media-item:hover{border-color:var(--rust);}
+.media-thumb{aspect-ratio:16/9;position:relative;overflow:hidden;background:var(--maroon-deep);
+  display:flex;align-items:center;justify-content:center;font-size:3rem;cursor:pointer;}
+.media-thumb iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+.media-info{padding:.8rem 1rem;}
+.media-info h4{font-family:'Oswald';font-weight:700;font-size:1rem;color:var(--cream-bright);
+  text-transform:uppercase;margin-bottom:.3rem;}
+.media-info p{color:var(--bone);font-size:.9rem;line-height:1.4;}
+
+
+/* ── GLOBAL LINK COLOR FIX ─────────────────── */
+a{color:var(--rust-light);text-decoration:none;}
+a:hover{color:var(--cream-bright);}
+
 </style>
 </head>
 <body>
@@ -486,7 +504,7 @@ footer .f-small{font-size:.78rem; letter-spacing:.1em; text-transform:uppercase;
     <div class="nav-item" onclick="showSection('pub-news')" id="nav-pub-news">
       <span class="nav-ic">📋</span><span>Oznamy & novinky</span>
     </div>
-    <div class="nav-item" onclick="showSection('pub-roster')" id="nav-pub-roster">
+    <div class="nav-item" onclick="showSection('roster')" id="nav-pub-roster">
       <span class="nav-ic">🏒</span><span>A-tím / Súpiska</span>
     </div>
     <div class="nav-item" onclick="showSection('pub-rahl')" id="nav-pub-rahl">
@@ -1158,7 +1176,7 @@ footer .f-small{font-size:.78rem; letter-spacing:.1em; text-transform:uppercase;
         <!-- Video 2: Povedz loď -->
         <div class="media-item">
           <div class="media-thumb" style="cursor:pointer;position:relative;overflow:hidden;"
-            onclick="this.innerHTML='<iframe width=\'100%\' height=\'100%\' src=\'https://www.youtube-nocookie.com/embed/moEoQqsYBvI?autoplay=1\' frameborder=\'0\' allow=\'autoplay;encrypted-media\' allowfullscreen style=\'position:absolute;inset:0;\'></iframe>'">
+            onclick="this.style.padding='0';this.innerHTML='<iframe src=\'https://www.youtube-nocookie.com/embed/moEoQqsYBvI?autoplay=1\' frameborder=\'0\' allow=\'autoplay;encrypted-media\' allowfullscreen></iframe>'" style="cursor:pointer;">
             <img src="https://img.youtube.com/vi/moEoQqsYBvI/hqdefault.jpg"
               style="width:100%;height:100%;object-fit:cover;" alt="Povedz loď">
             <div style="position:absolute;inset:0;display:flex;align-items:center;
@@ -1178,7 +1196,7 @@ footer .f-small{font-size:.78rem; letter-spacing:.1em; text-transform:uppercase;
         
         <div class="media-item">
           <div class="media-thumb" style="cursor:pointer;position:relative;overflow:hidden;"
-            onclick="this.innerHTML='<iframe width=\'100%\' height=\'100%\' src=\'https://www.youtube-nocookie.com/embed/fw4QdkXbYC0?autoplay=1\' frameborder=\'0\' allow=\'autoplay;encrypted-media\' allowfullscreen style=\'position:absolute;inset:0;\'></iframe>'">
+            onclick="this.style.padding='0';this.innerHTML='<iframe src=\'https://www.youtube-nocookie.com/embed/fw4QdkXbYC0?autoplay=1\' frameborder=\'0\' allow=\'autoplay;encrypted-media\' allowfullscreen></iframe>'" style="cursor:pointer;">
             <img src="https://img.youtube.com/vi/fw4QdkXbYC0/hqdefault.jpg"
               style="width:100%;height:100%;object-fit:cover;" alt="Praha 2019">
             <div style="position:absolute;inset:0;display:flex;align-items:center;
@@ -2941,6 +2959,74 @@ function autoLineup() {
   // Enable editing so admin can adjust
   if (!_lineupEditing) enableLineupEdit();
   toast('Zostava navrhnutá ⚡', 'success');
+}
+
+/* ══ RAHL — načítanie zo szalh.sk proxy ══ */
+async function loadRAHL() {
+  try {
+    const res = await fetch('https://trenuj.ndrtls.com/rahl-proxy.php');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    document.getElementById('rahl-loading').style.display = 'none';
+
+    // Standings
+    const tbody = document.getElementById('rahl-standings-tbody');
+    if (data.standings && data.standings.length) {
+      tbody.innerHTML = data.standings.map(t => {
+        const isNea = t.is_nea;
+        const highlight = isNea ? 'class="highlight"' : '';
+        const name = isNea ? '🦴 <strong>' + t.team + '</strong>' : t.team;
+        return '<tr ' + highlight + '>' +
+          '<td style="text-align:center;color:var(--bone)">' + t.pos + '</td>' +
+          '<td style="text-align:left;color:' + (isNea ? 'var(--cream-bright)' : 'var(--bone)') + '">' + name + '</td>' +
+          '<td>' + t.gp + '</td>' +
+          '<td>' + t.w + '</td>' +
+          '<td>' + t.l + '</td>' +
+          '<td>' + t.d + '</td>' +
+          '<td>' + t.gf + '</td>' +
+          '<td>' + t.ga + '</td>' +
+          '<td class="pts">' + t.pts + '</td>' +
+          '</tr>';
+      }).join('');
+    } else {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:var(--bone)">Tabuľka nie je dostupná.</td></tr>';
+    }
+
+    // NEA Results
+    const rtbody = document.getElementById('rahl-results-tbody');
+    if (data.matches && data.matches.length) {
+      const months = ['jan','feb','mar','apr','máj','jún','júl','aug','sep','okt','nov','dec'];
+      rtbody.innerHTML = data.matches.map(m => {
+        const d = m.date ? m.date.split(' ')[0] : '';
+        const parts = d.split('.');
+        const dateStr = parts.length === 3
+          ? parseInt(parts[0]) + '. ' + months[parseInt(parts[1])-1]
+          : d;
+        const resClass = m.result === 'V' ? 'result-w' : m.result === 'P' ? 'result-l' : 'result-u';
+        const resLabel = m.result === 'V' ? 'V' : m.result === 'P' ? 'P' : 'R';
+        return '<tr>' +
+          '<td style="color:var(--bone)">' + dateStr + '</td>' +
+          '<td style="color:var(--cream-bright)">' + m.opponent + '</td>' +
+          '<td style="font-family:Oswald;font-weight:700">' + m.score + '</td>' +
+          '<td class="' + resClass + '">' + resLabel + '</td>' +
+          '</tr>';
+      }).join('');
+    } else {
+      rtbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--bone)">Výsledky nie sú dostupné.</td></tr>';
+    }
+
+    // Updated timestamp
+    const upd = document.getElementById('rahl-updated');
+    if (upd && data.updated) upd.textContent = 'Aktualizované: ' + data.updated + ' · Zdroj: szalh.sk';
+
+    document.getElementById('rahl-content').style.display = 'block';
+
+  } catch(e) {
+    console.error('RAHL load error:', e);
+    document.getElementById('rahl-loading').style.display = 'none';
+    document.getElementById('rahl-error').style.display = 'block';
+  }
 }
 
 /* ══ LANG BUTTONS (placeholder — EN/NEA to be added) ══ */
