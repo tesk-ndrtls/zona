@@ -404,6 +404,28 @@ footer .f-small{font-size:.78rem; letter-spacing:.1em; text-transform:uppercase;
     </a>
   </div>
   <div class="nav-group">
+    <div class="nav-group-label">Verejné sekcie</div>
+    <div class="nav-item" onclick="window.location.href='https://ndrtls.com/#sec-news'">
+      <span class="nav-ic">📋</span><span>Oznamy & novinky</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='https://ndrtls.com/#sec-roster'">
+      <span class="nav-ic">🏒</span><span>A-tím / Súpiska</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='https://ndrtls.com/#sec-rahl'">
+      <span class="nav-ic">🏆</span><span>Liga RAHL</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='https://ndrtls.com/#sec-media'">
+      <span class="nav-ic">📸</span><span>Médiá</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='https://ndrtls.com/#sec-contact'">
+      <span class="nav-ic">✉️</span><span>Kontakt</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='https://trenuj.ndrtls.com'">
+      <span class="nav-ic">💪</span><span>Suchý tréning</span>
+    </div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-divider"></div>
     <div class="nav-group-label">Hráčska zóna</div>
     <div class="nav-item active" onclick="showSection('events')" id="nav-events">
       <span class="nav-ic">📅</span><span>Rozpis &amp; RSVP</span>
@@ -1146,6 +1168,18 @@ async function loadEvents() {
   const typeLabels = { zapas:'Zápas', trening:'Tréning', turnaj:'Turnaj', akcia:'Akcia' };
   const months = ['jan','feb','mar','apr','máj','jún','júl','aug','sep','okt','nov','dec'];
 
+  // Get names of who's going (for display)
+  const { data: rsvpYes } = await sb.from('rsvp')
+    .select('event_id, user_id, profiles(full_name)')
+    .eq('status', 'yes');
+  const namesMap = {};
+  (rsvpYes || []).forEach(r => {
+    if (!namesMap[r.event_id]) namesMap[r.event_id] = [];
+    namesMap[r.event_id].push(r.profiles?.full_name || '?');
+  });
+
+  const isAdmin = currentProfile?.role === 'admin';
+
   list.innerHTML = events.map(ev => {
     const d = new Date(ev.date);
     const day = d.getDate();
@@ -1154,20 +1188,34 @@ async function loadEvents() {
     const myStatus = rsvpMap[ev.id] || null;
     const count = countMap[ev.id] || 0;
     const maxStr = ev.max_players ? ` / ${ev.max_players}` : '';
+    const names = namesMap[ev.id] || [];
+    const namesStr = names.length ? names.join(', ') : '—';
+    const adminEdit = isAdmin
+      ? `<button class="btn-sm" onclick="openEditEventModal(${JSON.stringify(ev).replace(/'/g,"'")})" 
+          style="margin-left:auto;color:var(--rust-light)">✏</button>` : '';
 
-    return `<div class="event-card" id="ecard-${ev.id}">
-      <div class="ev-date">${day}<span>${mon}</span></div>
-      <div class="ev-info">
-        <div class="ev-type ${ev.type}">${typeLabels[ev.type] || ev.type}</div>
-        <h4>${ev.title}</h4>
-        <p>⏰ ${time}${ev.location ? ' · 📍 ' + ev.location : ''}${ev.notes ? ' · ' + ev.notes : ''}</p>
+    return `<div class="event-card" id="ecard-${ev.id}" style="flex-direction:column;align-items:stretch;cursor:default;">
+      <div style="display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;">
+        <div class="ev-date">${day}<span>${mon}</span></div>
+        <div class="ev-info" style="flex:1">
+          <div class="ev-type ${ev.type}">${typeLabels[ev.type] || ev.type}</div>
+          <h4>${ev.title}</h4>
+          <p>⏰ ${time}${ev.location ? ' · 📍 ' + ev.location : ''}${ev.notes ? ' · ' + ev.notes : ''}</p>
+        </div>
+        <div class="ev-actions">
+          <button class="btn-rsvp yes ${myStatus==='yes'?'active':''}"
+            onclick="setRsvp(${ev.id}, 'yes', this)">✓ Idem</button>
+          <button class="btn-rsvp no ${myStatus==='no'?'active':''}"
+            onclick="setRsvp(${ev.id}, 'no', this)">✗ Nejdem</button>
+          ${adminEdit}
+        </div>
       </div>
-      <div class="ev-count">👥 ${count}${maxStr}</div>
-      <div class="ev-actions">
-        <button class="btn-rsvp yes ${myStatus==='yes'?'active':''}"
-          onclick="setRsvp(${ev.id}, 'yes', this)">✓ Idem</button>
-        <button class="btn-rsvp no ${myStatus==='no'?'active':''}"
-          onclick="setRsvp(${ev.id}, 'no', this)">✗ Nejdem</button>
+      <div style="margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--line);
+        font-family:'Oswald';font-size:.78rem;color:var(--bone);">
+        <span style="color:var(--rust-light);letter-spacing:.1em;text-transform:uppercase;">
+          👥 Idú (${count}${maxStr}):
+        </span>
+        <span id="ev-names-${ev.id}" style="margin-left:.4rem;">${namesStr}</span>
       </div>
     </div>`;
   }).join('');
@@ -1242,7 +1290,8 @@ function renderRosterTable() {
         <td><input class="re-inp" value="${p.note||''}" placeholder="poznámka…" onchange="rosterChange(${p.id},'note',this.value)" style="width:130px;background:var(--ink);border:1px solid var(--rust);border-radius:4px;color:var(--cream);padding:.2rem .4rem;font-family:'Barlow Condensed';font-size:.95rem;"></td>
       </tr>`;
     }
-    return `<tr>
+    return `<tr onclick="openPlayerCard(${p.id})"
+        style="cursor:pointer;" title="Kliknúť pre detail">
       <td style="font-family:'Anton';color:var(--maroon);font-size:1.1rem">${p.number||'—'}</td>
       <td style="color:var(--cream-bright);font-weight:600">${p.name}</td>
       <td><span class="pos-badge ${posClass}">${p.position||'?'}</span></td>
@@ -1768,8 +1817,10 @@ async function loadAdminEvents() {
         <h4>${ev.title}</h4>
         <p>${time}${ev.location ? ' · 📍 ' + ev.location : ''}</p>
       </div>
-      <div class="ev-actions">
+      <div class="ev-actions" style="flex-direction:column;gap:.4rem;align-items:flex-end;">
         <button class="btn-admin edit" onclick='openEditEventModal(${JSON.stringify(ev)})'>✏ Upraviť</button>
+        <button class="btn-admin edit" onclick="showAdminRsvpPanel(${ev.id})"
+          style="background:var(--charcoal);font-size:.7rem;">👥 Prihlásiť hráča</button>
       </div>
     </div>`;
   }).join('');
@@ -2077,6 +2128,152 @@ function showProfileMsg(elId, msg, success) {
   el.style.color = success ? '#6dbf6d' : '#bf6d6d';
 }
 
+
+/* ══ PLAYER CARD ══ */
+function openPlayerCard(playerId) {
+  const p = rosterData.find(x => x.id === playerId);
+  if (!p) return;
+
+  const posClass = p.position === 'B' ? 'g' : p.position === 'O' ? 'd' : 'f';
+  const posLabel = p.position === 'B' ? 'Brankár' : p.position === 'O' ? 'Obranca' : 'Útočník';
+
+  document.getElementById('pm-avatar').textContent = p.name.slice(0,2).toUpperCase();
+  document.getElementById('pm-name').textContent   = p.name;
+  document.getElementById('pm-pos-badge').innerHTML =
+    `<span class="pos-badge ${posClass}">${p.position||'?'} — ${posLabel}</span>`;
+  document.getElementById('pm-number').textContent  = p.number  || '—';
+  document.getElementById('pm-gp').textContent      = p.gp      || 0;
+  document.getElementById('pm-goals').textContent   = p.goals   || 0;
+  document.getElementById('pm-assists').textContent = p.assists || 0;
+
+  const noteEl = document.getElementById('pm-note');
+  if (p.note) {
+    noteEl.textContent = p.note;
+    noteEl.style.display = 'block';
+  } else {
+    noteEl.style.display = 'none';
+  }
+
+  // Show edit button for admin
+  const editBtn = document.getElementById('pm-edit-btn');
+  editBtn.style.display = currentProfile?.role === 'admin' ? 'block' : 'none';
+
+  // Reset to view mode
+  document.getElementById('pm-view').style.display = 'block';
+  document.getElementById('pm-edit').style.display = 'none';
+  document.getElementById('pm-edit-id').value = playerId;
+
+  document.getElementById('modal-player').classList.add('show');
+}
+
+function enablePlayerEdit() {
+  const id = parseInt(document.getElementById('pm-edit-id').value);
+  const p  = rosterData.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('pm-edit-number').value = p.number || '';
+  document.getElementById('pm-edit-pos').value    = p.position || 'Ú';
+  document.getElementById('pm-edit-note').value   = p.note || '';
+
+  document.getElementById('pm-view').style.display = 'none';
+  document.getElementById('pm-edit').style.display = 'block';
+}
+
+function cancelPlayerEdit() {
+  document.getElementById('pm-view').style.display = 'block';
+  document.getElementById('pm-edit').style.display = 'none';
+}
+
+async function savePlayerCard() {
+  const id     = parseInt(document.getElementById('pm-edit-id').value);
+  const number = document.getElementById('pm-edit-number').value.trim();
+  const pos    = document.getElementById('pm-edit-pos').value;
+  const note   = document.getElementById('pm-edit-note').value.trim();
+
+  const { error } = await sb.from('players')
+    .update({ number, position: pos, note: note || null })
+    .eq('id', id);
+
+  if (error) { toast('Chyba: ' + error.message, 'error'); return; }
+
+  // Update local cache
+  const p = rosterData.find(x => x.id === id);
+  if (p) { p.number = number; p.position = pos; p.note = note; }
+
+  closeModal('modal-player');
+  renderRosterTable();
+  toast('Hráč uložený ✓', 'success');
+}
+
+
+/* ══ ADMIN RSVP ══ */
+async function adminSetRsvp(eventId, userId, status, selectEl) {
+  const { error } = await sb.from('rsvp').upsert(
+    { event_id: eventId, user_id: userId, status },
+    { onConflict: 'event_id,user_id' }
+  );
+  if (error) { toast('Chyba: ' + error.message, 'error'); return; }
+  toast(status === 'yes' ? 'Hráč prihlásený ✓' : 'Hráč odhlásený', 'success');
+  loadEvents();
+}
+
+
+async function showAdminRsvpPanel(eventId) {
+  document.getElementById('ar-event-id').value = eventId;
+
+  // Get event title
+  const { data: ev } = await sb.from('events').select('title').eq('id', eventId).single();
+  document.getElementById('ar-event-title').textContent = ev?.title || '';
+
+  const list = document.getElementById('ar-players-list');
+  list.innerHTML = '<div class="empty-state"><span class="spinner" style="display:inline-block;width:18px;height:18px;border:2px solid rgba(233,220,195,.3);border-top-color:var(--cream-bright);border-radius:50%;animation:spin .7s linear infinite;"></span></div>';
+
+  document.getElementById('modal-admin-rsvp').classList.add('show');
+
+  // Load all profiles + their current RSVP status for this event
+  const { data: profiles } = await sb.from('profiles').select('id, full_name');
+  const { data: rsvps }    = await sb.from('rsvp')
+    .select('user_id, status').eq('event_id', eventId);
+
+  const rsvpMap = {};
+  (rsvps || []).forEach(r => rsvpMap[r.user_id] = r.status);
+
+  if (!profiles?.length) {
+    list.innerHTML = '<p style="color:var(--bone);text-align:center;padding:1rem;">Žiadni hráči.</p>';
+    return;
+  }
+
+  list.innerHTML = profiles.map(p => {
+    const name    = p.full_name || p.id.slice(0,8);
+    const status  = rsvpMap[p.id] || null;
+    const yesAct  = status === 'yes' ? 'active' : '';
+    const noAct   = status === 'no'  ? 'active' : '';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;
+      padding:.6rem 0;border-bottom:1px solid var(--line);">
+      <span style="color:var(--cream-bright);font-family:'Oswald';">${name}</span>
+      <div style="display:flex;gap:.4rem;">
+        <button class="btn-rsvp yes ${yesAct}"
+          onclick="adminSetRsvp(${eventId}, '${p.id}', 'yes', this)">✓</button>
+        <button class="btn-rsvp no ${noAct}"
+          onclick="adminSetRsvp(${eventId}, '${p.id}', 'no', this)">✗</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Override adminSetRsvp to update UI in modal
+async function adminSetRsvp(eventId, userId, status, btn) {
+  btn.closest('div').querySelectorAll('.btn-rsvp').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const { error } = await sb.from('rsvp').upsert(
+    { event_id: eventId, user_id: userId, status },
+    { onConflict: 'event_id,user_id' }
+  );
+  if (error) { toast('Chyba: ' + error.message, 'error'); btn.classList.remove('active'); return; }
+  toast(status === 'yes' ? 'Prihlásený ✓' : 'Odhlásený', 'success');
+  loadEvents(); // refresh main event list
+}
+
 /* ══ LANG BUTTONS (placeholder — EN/NEA to be added) ══ */
 document.getElementById('btn-sk').classList.add('active');
 ['btn-en','btn-nea'].forEach(id => {
@@ -2191,6 +2388,100 @@ init();
     </button>
     <div id="recovery-msg" style="display:none;margin-top:.8rem;
       font-family:'Oswald';font-size:.88rem;text-align:center;"></div>
+  </div>
+</div>
+
+
+<!-- ══ PLAYER CARD MODAL ══ -->
+<div class="modal-overlay" id="modal-player">
+  <div class="modal">
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;">
+      <div id="pm-avatar" style="width:52px;height:52px;border-radius:50%;
+        background:var(--maroon);border:2px solid var(--rust);
+        display:grid;place-items:center;font-family:'Anton';font-size:1.4rem;
+        color:var(--cream);flex-shrink:0;">?</div>
+      <div>
+        <h3 id="pm-name" style="margin:0;font-size:1.6rem;"></h3>
+        <div id="pm-pos-badge" style="margin-top:.3rem;"></div>
+      </div>
+      <button onclick="closeModal('modal-player')"
+        style="margin-left:auto;background:none;border:0;color:var(--bone);
+        font-size:1.4rem;cursor:pointer;line-height:1;">✕</button>
+    </div>
+
+    <!-- View mode -->
+    <div id="pm-view">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1rem;">
+        <div style="background:var(--charcoal);border-radius:8px;padding:.8rem;text-align:center;">
+          <div id="pm-number" style="font-family:'Anton';font-size:2rem;color:var(--maroon);"></div>
+          <div style="font-family:'Oswald';font-size:.7rem;letter-spacing:.1em;
+            text-transform:uppercase;color:var(--bone);">Číslo</div>
+        </div>
+        <div style="background:var(--charcoal);border-radius:8px;padding:.8rem;text-align:center;">
+          <div id="pm-gp" style="font-family:'Anton';font-size:2rem;color:var(--cream-bright);"></div>
+          <div style="font-family:'Oswald';font-size:.7rem;letter-spacing:.1em;
+            text-transform:uppercase;color:var(--bone);">Zápasy</div>
+        </div>
+        <div style="background:var(--charcoal);border-radius:8px;padding:.8rem;text-align:center;">
+          <div id="pm-goals" style="font-family:'Anton';font-size:2rem;color:var(--cream-bright);"></div>
+          <div style="font-family:'Oswald';font-size:.7rem;letter-spacing:.1em;
+            text-transform:uppercase;color:var(--bone);">Góly</div>
+        </div>
+        <div style="background:var(--charcoal);border-radius:8px;padding:.8rem;text-align:center;">
+          <div id="pm-assists" style="font-family:'Anton';font-size:2rem;color:var(--cream-bright);"></div>
+          <div style="font-family:'Oswald';font-size:.7rem;letter-spacing:.1em;
+            text-transform:uppercase;color:var(--bone);">Asistencie</div>
+        </div>
+      </div>
+      <div id="pm-note" style="color:var(--bone);font-size:.95rem;
+        padding:.8rem;background:var(--charcoal);border-radius:8px;
+        margin-bottom:1rem;display:none;"></div>
+      <button id="pm-edit-btn" onclick="enablePlayerEdit()" class="btn-admin edit"
+        style="display:none;width:100%;">✏ Upraviť</button>
+    </div>
+
+    <!-- Edit mode (admin only) -->
+    <div id="pm-edit" style="display:none;">
+      <input type="hidden" id="pm-edit-id">
+      <div class="form-group">
+        <label>Číslo dresu</label>
+        <input type="text" id="pm-edit-number" placeholder="napr. 91">
+      </div>
+      <div class="form-group">
+        <label>Pozícia</label>
+        <select id="pm-edit-pos" style="width:100%;background:var(--ink);
+          border:1px solid var(--line);border-radius:6px;padding:.75rem .9rem;
+          color:var(--cream);font-family:'Barlow Condensed';font-size:1rem;">
+          <option value="B">B — Brankár</option>
+          <option value="O">O — Obranca</option>
+          <option value="Ú">Ú — Útočník</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Poznámka</label>
+        <input type="text" id="pm-edit-note" placeholder="napr. Kapitán">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-admin save" onclick="savePlayerCard()">✓ Uložiť</button>
+        <button class="btn-admin cancel" onclick="cancelPlayerEdit()">Zrušiť</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ ADMIN RSVP MODAL ══ -->
+<div class="modal-overlay" id="modal-admin-rsvp">
+  <div class="modal">
+    <h3>Prihlásiť / odhlásiť hráča</h3>
+    <input type="hidden" id="ar-event-id">
+    <p id="ar-event-title" style="color:var(--bone);margin-bottom:1.2rem;font-size:.95rem;"></p>
+    <div id="ar-players-list" style="max-height:400px;overflow-y:auto;">
+      <div class="empty-state"><span class="spinner"></span></div>
+    </div>
+    <div class="modal-actions" style="margin-top:1rem;">
+      <button class="btn-admin cancel" onclick="closeModal('modal-admin-rsvp')">Zavrieť</button>
+    </div>
   </div>
 </div>
 
