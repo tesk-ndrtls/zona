@@ -485,6 +485,35 @@ footer .f-small{font-size:.78rem; letter-spacing:.1em; text-transform:uppercase;
 a{color:var(--rust-light);text-decoration:none;}
 a:hover{color:var(--cream-bright);}
 
+
+/* ── RAHL TABLES */
+.standings-table{width:100%;border-collapse:collapse;font-size:.95rem;}
+.standings-table th{font-family:'Oswald';font-weight:700;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--rust-light);padding:.5rem .6rem;border-bottom:2px solid var(--maroon);text-align:center;white-space:nowrap;}
+.standings-table th:nth-child(2){text-align:left;}
+.standings-table td{padding:.55rem .6rem;border-bottom:1px solid var(--line);text-align:center;color:var(--bone);}
+.standings-table td:nth-child(2){text-align:left;color:var(--cream-bright);}
+.standings-table tr.highlight td{background:rgba(107,31,42,.2);}
+.standings-table .pts{font-family:'Oswald';font-weight:700;color:var(--cream-bright);}
+.standings-table tr:hover td{background:rgba(107,31,42,.1);}
+.schedule-table{width:100%;border-collapse:collapse;font-size:.95rem;}
+.schedule-table th{font-family:'Oswald';font-weight:700;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--rust-light);padding:.5rem .8rem;border-bottom:2px solid var(--maroon);text-align:left;}
+.schedule-table td{padding:.55rem .8rem;border-bottom:1px solid var(--line);color:var(--bone);}
+.schedule-table tr:hover td{background:rgba(107,31,42,.1);}
+.result-w{color:#6dbf6d;font-family:'Oswald';font-weight:700;}
+.result-l{color:#bf6d6d;font-family:'Oswald';font-weight:700;}
+.result-u{color:var(--bone);font-family:'Oswald';}
+/* ── NEWS */
+.news-card{background:var(--charcoal);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:1rem;transition:.2s;}
+.news-card:hover{border-color:rgba(107,31,42,.4);}
+.news-card-img{width:100%;aspect-ratio:16/9;object-fit:cover;}
+.news-card-video{width:100%;aspect-ratio:16/9;border:0;}
+.news-card-body{padding:1.2rem 1.4rem;}
+.news-card-date{font-family:'Oswald';font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--rust-light);margin-bottom:.4rem;}
+.news-card h3{font-family:'Oswald';font-weight:700;font-size:1.15rem;color:var(--cream-bright);text-transform:uppercase;margin-bottom:.5rem;}
+.news-card p{color:var(--bone);font-size:.95rem;line-height:1.5;}
+/* ── CONTACT FORM */
+.contact-form{background:var(--charcoal);border:1px solid var(--line);border-radius:12px;padding:1.4rem;}
+
 </style>
 </head>
 <body>
@@ -539,6 +568,9 @@ a:hover{color:var(--cream-bright);}
   <div class="nav-group" id="admin-nav" style="display:none">
     <div class="nav-divider"></div>
     <div class="nav-group-label">Admin</div>
+    <div class="nav-item" onclick="showSection('admin-news')" id="nav-admin-news">
+      <span class="nav-ic">📝</span><span>Správa oznamov</span>
+    </div>
     <div class="nav-item" onclick="showSection('admin-events')" id="nav-admin-events">
       <span class="nav-ic">⚙</span><span>Správa udalostí</span>
     </div>
@@ -1039,54 +1071,13 @@ a:hover{color:var(--cream-bright);}
 <!-- ── NEWS ── -->
   <div class="page-section active" id="sec-pub-news">
     <div class="sec-wrap">
-      <div class="sec-head">
-        <h2 data-i="newsH">Oznamy &amp; Novinky</h2>
-        <p data-i="newsP">Všetko dôležité na jednom mieste. Zápasy, akcie, správy z kabíny.</p>
-      </div>
-
-      <!-- Training banner -->
-      <div class="training-banner" onclick="showSection('training')">
-        <div class="tb-icon">💪</div>
-        <div class="tb-text">
-          <div class="tb-label" data-i="tbLabel">Suchý tréning</div>
-          <div class="tb-title" data-i="tbTitle">Tréningový program</div>
-          <div class="tb-sub" data-i="tbSub">Domáce cvičenia · bez vybavenia · viac piva</div>
-        </div>
-        <div class="tb-arrow">&#8594;</div>
-      </div>
-
-      <div class="stripe"></div>
-
-      <div class="card-grid">
-        <div class="card">
-          <div class="card-date" data-i="n1date">14. jún 2026</div>
-          <h3 data-i="n1title">Prvý zápas novej sezóny</h3>
-          <p data-i="n1body">Sezóna štartuje! Prvý zápas hráme v piatok 20. júna o 21:30 na zimnom štadióne v Bratislave. Všetci na ľad — a potom do krčmy.</p>
-          <span class="tag" data-i="n1tag">Zápas</span>
-        </div>
-        <div class="card">
-          <div class="card-date" data-i="n2date">10. jún 2026</div>
-          <h3 data-i="n2title">Letný tréningový kemp</h3>
-          <p data-i="n2body">Plánujeme víkendový kemp zameraný na kondičný tréning a teambuilding. Dátum a miesto upresníme čoskoro. Záujem hláste kapitánovi.</p>
-          <span class="tag" data-i="n2tag">Akcia</span>
-        </div>
-        <div class="card">
-          <div class="card-date" data-i="n3date">5. jún 2026</div>
-          <h3 data-i="n3title">Členské príspevky 2026/27</h3>
-          <p data-i="n3body">Pripomíname, že členské na novú sezónu je splatné do konca júna. Podrobnosti u financmajstra. Kto nezaplatí, nehrá. Jednoduché.</p>
-          <span class="tag" data-i="n3tag">Financie</span>
-        </div>
-        <div class="card">
-          <div class="card-date" data-i="n4date">1. jún 2026</div>
-          <h3 data-i="n4title">Výsledky jarného turnaja</h3>
-          <p data-i="n4body">Skončili sme na krásnom 3. mieste z 8 tímov. Gratulácie celému tímu — a špeciálna vďaka tým, čo prišli aj napriek víkendovej kocovine.</p>
-          <span class="tag" data-i="n4tag">Výsledok</span>
-        </div>
+      <div class="sec-head"><h2>Oznamy & Novinky</h2><p>Všetko dôležité o tíme na jednom mieste.</p></div>
+      <div id="pub-news-list">
+        <div class="empty-state"><div class="es-icon" style="font-size:2rem">📋</div><p>Načítavam…</p></div>
       </div>
     </div>
   </div>
 
-  <!-- ── RAHL ── -->
   <div class="page-section" id="sec-pub-rahl">
     <div class="sec-wrap">
       <div class="sec-head">
@@ -1596,6 +1587,9 @@ function showSection(id) {
   // Lazy-load data
   if (id === 'finance') loadFinance();
   if (id === 'pub-rahl' && !window._pubRahlLoaded) { window._pubRahlLoaded = true; loadRAHL(); }
+  if (id === 'pub-news' && !window._pubNewsLoaded) { window._pubNewsLoaded = true; loadPublicNews(); }
+  if (id === 'admin-news') loadAdminNews();
+  if (id === 'training' && !window._trainingInit) { window._trainingInit = true; if(typeof applyStatic==='function'){applyStatic();if(typeof buildCards==='function'){buildCards();buildTabs();}} }
   if (id === 'profile') loadProfile();
   if (id === 'admin-events') loadAdminEvents();
   if (id === 'admin-payments') { loadAdminPayments(); admTab('overview'); }
@@ -3044,6 +3038,145 @@ document.getElementById('login-pass').addEventListener('keydown', e => {
 
 /* ══ START ══ */
 init();
+
+/* ══ TRAINING INIT ══ */
+function initTraining() {
+  if (typeof applyStatic === 'function') {
+    applyStatic();
+    if (typeof buildCards === 'function') { buildCards(); buildTabs(); }
+  }
+}
+
+/* ══ NEWS (public) ══ */
+async function loadPublicNews() {
+  const list = document.getElementById('pub-news-list');
+  if (!list) return;
+  const { data, error } = await sb.from('news').select('*').order('created_at', { ascending: false });
+  if (error || !data?.length) {
+    list.innerHTML = '<div class="empty-state"><div class="es-icon">📋</div><p>Zatial ziadne prispevky.</p></div>';
+    return;
+  }
+  const months = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  list.innerHTML = data.map(n => {
+    const d = new Date(n.created_at);
+    const dateStr = d.getDate() + '. ' + months[d.getMonth()] + ' ' + d.getFullYear();
+    let media = '';
+    if (n.youtube_url) {
+      const ytId = extractYoutubeId(n.youtube_url);
+      if (ytId) media = '<iframe class="news-card-video" src="https://www.youtube-nocookie.com/embed/' + ytId + '" allowfullscreen></iframe>';
+    } else if (n.image_url) {
+      media = '<img class="news-card-img" src="' + n.image_url + '" alt="' + n.title + '" onerror="this.style.display=\'none\'">';
+    }
+    return '<div class="news-card">' + media +
+      '<div class="news-card-body"><div class="news-card-date">' + dateStr + '</div>' +
+      '<h3>' + n.title + '</h3>' +
+      '<p>' + (n.body || '').replace(/\n/g, '<br>') + '</p></div></div>';
+  }).join('');
+}
+
+function extractYoutubeId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+  return m ? m[1] : null;
+}
+
+/* ══ NEWS (admin) ══ */
+async function loadAdminNews() {
+  const list = document.getElementById('admin-news-list');
+  if (!list) return;
+  const { data } = await sb.from('news').select('*').order('created_at', { ascending: false });
+  const months = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  if (!data || !data.length) {
+    list.innerHTML = '<div class="empty-state"><div class="es-icon">📋</div><p>Ziadne prispevky.</p></div>';
+    return;
+  }
+  list.innerHTML = data.map(n => {
+    const d = new Date(n.created_at);
+    const dateStr = d.getDate() + '. ' + months[d.getMonth()];
+    const badge = n.youtube_url ? ' · <span style="color:var(--rust-light)">YouTube</span>' : n.image_url ? ' · <span style="color:var(--rust-light)">Foto</span>' : '';
+    return '<div class="event-card" style="margin-bottom:.8rem;"><div class="ev-info"><h4>' + n.title + '</h4>' +
+      '<p style="color:var(--bone);font-size:.9rem;">' + dateStr + badge + '</p>' +
+      '<p style="margin-top:.4rem;font-size:.9rem;color:var(--bone);">' + (n.body||'').slice(0,80) + ((n.body||'').length > 80 ? '...' : '') + '</p></div>' +
+      '<div class="ev-actions"><button class="btn-admin edit" onclick="openNewsModal(' + n.id + ')">Upravit</button></div></div>';
+  }).join('');
+}
+
+function openNewsModal(id) {
+  const isEdit = !!id;
+  document.getElementById('news-modal-title').textContent = isEdit ? 'Upravit oznam' : 'Novy oznam';
+  document.getElementById('news-edit-id').value = id || '';
+  document.getElementById('news-delete-btn').style.display = isEdit ? 'inline-block' : 'none';
+  if (isEdit) {
+    sb.from('news').select('*').eq('id', id).single().then(({ data: n }) => {
+      if (n) {
+        document.getElementById('news-title').value = n.title || '';
+        document.getElementById('news-body').value  = n.body  || '';
+        document.getElementById('news-img').value   = n.image_url   || '';
+        document.getElementById('news-yt').value    = n.youtube_url || '';
+      }
+    });
+  } else {
+    ['news-title','news-body','news-img','news-yt'].forEach(id => { document.getElementById(id).value = ''; });
+  }
+  document.getElementById('modal-news').classList.add('show');
+}
+
+async function saveNews() {
+  const id    = document.getElementById('news-edit-id').value;
+  const title = document.getElementById('news-title').value.trim();
+  const body  = document.getElementById('news-body').value.trim();
+  const img   = document.getElementById('news-img').value.trim() || null;
+  const yt    = document.getElementById('news-yt').value.trim()  || null;
+  if (!title) { toast('Zadaj nadpis.', 'error'); return; }
+  const payload = { title, body, image_url: img, youtube_url: yt };
+  let error;
+  if (id) {
+    ({ error } = await sb.from('news').update(payload).eq('id', parseInt(id)));
+  } else {
+    ({ error } = await sb.from('news').insert(payload));
+  }
+  if (error) { toast('Chyba: ' + error.message, 'error'); return; }
+  closeModal('modal-news');
+  toast(id ? 'Oznam upraveny' : 'Oznam pridany', 'success');
+  loadAdminNews();
+}
+
+async function deleteNews() {
+  const id = document.getElementById('news-edit-id').value;
+  if (!id || !confirm('Vymazat tento prispevok?')) return;
+  await sb.from('news').delete().eq('id', parseInt(id));
+  closeModal('modal-news');
+  toast('Oznam vymazany', 'success');
+  loadAdminNews();
+}
+
+/* ══ CONTACT FORM ══ */
+async function submitContact() {
+  const name  = document.getElementById('cf-name').value.trim();
+  const email = document.getElementById('cf-email').value.trim();
+  const pos   = document.getElementById('cf-pos').value;
+  const msg   = document.getElementById('cf-msg').value.trim();
+  const btn   = document.getElementById('cf-btn');
+  const result= document.getElementById('cf-result');
+  if (!name || !email || !msg) {
+    result.textContent = 'Vyplnte meno, email a spravu.';
+    result.style.color = '#bf6d6d'; result.style.display = 'block'; return;
+  }
+  btn.disabled = true; btn.textContent = 'Odosielam...';
+  const { error } = await sb.from('contact_requests').insert({ name, email, position: pos || null, message: msg });
+  btn.disabled = false; btn.textContent = 'Odoslat spravu';
+  if (error) {
+    result.textContent = 'Chyba. Napisite priamo na admin@ndrtls.com';
+    result.style.color = '#bf6d6d';
+  } else {
+    result.textContent = 'Sprava odoslana! Ozveме sa coskoro.';
+    result.style.color = '#6dbf6d';
+    ['cf-name','cf-email','cf-msg'].forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('cf-pos').value = '';
+  }
+  result.style.display = 'block';
+}
+
 </script>
 
 <!-- ══ CLOSE GAME MODAL ══ -->
@@ -3390,5 +3523,65 @@ init();
   </div>
 </div>
 
+
+<!-- ══ ADMIN NEWS ══ -->
+<div class="page-section" id="sec-admin-news">
+  <div class="sec-wrap">
+    <div class="sec-head"><h2>Správa oznamov</h2><p>Pridávaj, uprav a mazaj príspevky.</p></div>
+    <div class="admin-bar">
+      <span class="admin-label">&#9881; Admin</span>
+      <button class="btn-admin edit" onclick="openNewsModal()">+ Nový oznam</button>
+    </div>
+    <div id="admin-news-list">
+      <div class="empty-state"><div class="es-icon">📋</div><p>Načítavam…</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTACT PUB ══ -->
+<div class="page-section" id="sec-pub-contact">
+  <div class="sec-wrap" style="max-width:680px;">
+    <div class="sec-head"><h2>Kontakt</h2><p>Kontaktuj nás alebo nám zanechaj správu.</p></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div class="card"><h3>GM / Tréner</h3><p><a href="mailto:sakinder@ndrtls.com">sakinder@ndrtls.com</a></p></div>
+      <div class="card"><h3>Kapitán</h3><p><a href="mailto:stehno@ndrtls.com">stehno@ndrtls.com</a></p></div>
+      <div class="card"><h3>PR / Social</h3><p><a href="mailto:konty@ndrtls.com">konty@ndrtls.com</a></p></div>
+      <div class="card"><h3>Admin</h3><p><a href="mailto:admin@ndrtls.com">admin@ndrtls.com</a></p></div>
+    </div>
+    <div class="stripe"></div>
+    <h3 style="font-family:'Oswald';font-weight:700;font-size:.85rem;letter-spacing:.15em;text-transform:uppercase;color:var(--rust-light);margin:1.2rem 0 .8rem;">Záujem o hokej? Napíš nám</h3>
+    <div class="contact-form">
+      <div class="form-group"><label>Meno</label><input type="text" id="cf-name" placeholder="Tvoje meno"></div>
+      <div class="form-group"><label>E-mail</label><input type="email" id="cf-email" placeholder="tvoj@email.com"></div>
+      <div class="form-group">
+        <label>Pozícia</label>
+        <select id="cf-pos" style="width:100%;background:rgba(21,17,15,.7);border:1px solid var(--line);border-radius:6px;padding:.75rem .9rem;color:var(--cream);font-family:'Barlow Condensed';font-size:1rem;">
+          <option value="">vyber pozíciu</option><option>Útočník</option><option>Obranca</option><option>Brankár</option><option>Flex / neviem</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Správa</label><textarea id="cf-msg" rows="4" style="width:100%;background:rgba(21,17,15,.7);border:1px solid var(--line);border-radius:6px;padding:.75rem .9rem;color:var(--cream);font-family:'Barlow Condensed';font-size:1rem;resize:vertical;min-height:100px;" placeholder="Krátko o sebe…"></textarea></div>
+      <button class="btn-primary" onclick="submitContact()" id="cf-btn">Odoslať správu</button>
+      <div id="cf-result" style="display:none;margin-top:.8rem;font-family:'Oswald';font-size:.9rem;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NEWS MODAL ══ -->
+<div class="modal-overlay" id="modal-news">
+  <div class="modal">
+    <h3 id="news-modal-title">Nový oznam</h3>
+    <input type="hidden" id="news-edit-id">
+    <div class="form-group"><label>Nadpis</label><input type="text" id="news-title" placeholder="Nadpis príspevku"></div>
+    <div class="form-group"><label>Text</label><textarea id="news-body" rows="4" style="width:100%;background:var(--ink);border:1px solid var(--line);border-radius:6px;padding:.75rem .9rem;color:var(--cream);font-family:'Barlow Condensed';font-size:1rem;resize:vertical;min-height:80px;"></textarea></div>
+    <div class="form-group"><label>Foto URL (nepovinné)</label><input type="url" id="news-img" placeholder="https://..."></div>
+    <div class="form-group"><label>YouTube link (nepovinné)</label><input type="url" id="news-yt" placeholder="https://youtu.be/...">
+      <p style="font-size:.82rem;color:var(--bone);margin-top:.3rem;">YouTube má prednosť pred fotom.</p></div>
+    <div class="modal-actions">
+      <button class="btn-admin save" onclick="saveNews()">Uložiť</button>
+      <button class="btn-admin cancel" onclick="closeModal('modal-news')">Zrušiť</button>
+      <button class="btn-admin danger" id="news-delete-btn" onclick="deleteNews()" style="display:none;margin-left:auto;">Vymazať</button>
+    </div>
+  </div>
+</div>
+
 </body>
-</html>
